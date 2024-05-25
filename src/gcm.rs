@@ -1,3 +1,4 @@
+use crate::constants::{NONCE_SIZE, TAG_SIZE};
 use crate::ctr::Aes256Ctr32;
 use crate::error::Error;
 use crate::types::{Bytes, Key, Nonce, Result};
@@ -6,9 +7,6 @@ use aes::cipher::{BlockEncrypt, KeyInit};
 use aes::Aes256;
 use ghash::universal_hash::UniversalHash;
 use ghash::GHash;
-
-pub const TAG_SIZE: usize = 16;
-pub const NONCE_SIZE: usize = 12;
 
 #[derive(Clone)]
 pub struct GcmGhash {

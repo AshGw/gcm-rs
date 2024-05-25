@@ -1,11 +1,13 @@
+pub mod constants;
 pub mod ctr;
 pub mod error;
 pub mod gcm;
 pub mod types;
 
+use crate::constants::TAG_SIZE;
 use ctr::Aes256Ctr32;
 use error::Error;
-use gcm::{setup as setup_gcm, GcmGhash, TAG_SIZE};
+use gcm::{setup as setup_gcm, GcmGhash};
 use subtle::ConstantTimeEq;
 use types::{Bytes, Key, Nonce, Result};
 
