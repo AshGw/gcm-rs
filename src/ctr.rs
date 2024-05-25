@@ -8,20 +8,21 @@ use aes::Aes256;
 use crate::types::CTRInitializer;
 pub struct Aes256Ctr32(ctr::Ctr32BE<Aes256>);
 
+const _BLOCK_SIZE: usize =
+<Aes256 as aes::cipher::BlockSizeUser>::BlockSize::USIZE;
+const _NONCE_SIZE: usize = Self::_BLOCK_SIZE - 4;
+
 impl Aes256Ctr32 {
-    const _BLOCK_SIZE: usize =
-        <Aes256 as aes::cipher::BlockSizeUser>::BlockSize::USIZE;
-    const _NONCE_SIZE: usize = Self::_BLOCK_SIZE - 4;
+
 
     pub fn new(
         algo: Aes256,
         nonce: &Nonce,
         initializer: CTRInitializer,
     ) -> Result<Self> {
-        if nonce.len() != Self::_NONCE_SIZE {
+        if !is_valid_nonce_size(nonce, _NONCE_SIZE) {
             return Err(Error::InvalidNonceSize);
         }
-
         let mut _nonce_block = [0u8; Self::_BLOCK_SIZE];
         _nonce_block[0..Self::_NONCE_SIZE].copy_from_slice(nonce);
 
@@ -31,5 +32,13 @@ impl Aes256Ctr32 {
         ));
         ctr.seek(Self::_BLOCK_SIZE * (initializer as usize));
         Ok(Self(ctr))
+    }
+}
+
+fn is_valid_nonce_size(nonce: &Nonce, expected_size: usize) -> bool {
+    if nonce.len() != expected_size {
+        false
+    } else {
+        true
     }
 }
