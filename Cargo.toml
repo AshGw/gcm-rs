@@ -1,0 +1,27 @@
+
+[package]
+name = "gcm"
+version = "1.0.0"
+authors = ["ashgw ashrefgw@proton.me"]
+edition = "2021"
+description = "AES-256 GCM"
+repository = "https://github.com/ashgw/gcm"
+license = "GPL-3.0"
+
+[lib]
+name = "ready_gcm"
+path = "src/lib.rs"
+
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3
+
+
+[dependencies]
+aes = { version = "0.8.3", features = ["zeroize"] }
+ctr = { version = "0.9.2", features = ["zeroize"] }
+ghash = { version = "0.5.0", features = ["zeroize"] }
+subtle = "2.3"
+anyhow = "1.0.86"
