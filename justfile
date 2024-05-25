@@ -9,7 +9,7 @@ alias cov:= coverage
 
 @setup:
     # rustup install nightly
-    cargo install cargo-tarpaulin
+    # cargo install cargo-tarpaulin
     rustup component add clippy-preview
     pip install pre-commit
     just h
