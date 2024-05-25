@@ -46,6 +46,9 @@ impl Aes256Ctr32 {
             initializer,
         )
     }
+    pub fn xor(&mut self, buf: &mut Bytes) {
+        self.0.apply_keystream(buf);
+    }
 }
 
 fn is_valid_nonce_size(nonce: &Nonce, expected_size: usize) -> bool {
