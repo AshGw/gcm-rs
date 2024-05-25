@@ -11,12 +11,12 @@ use gcm::{setup as setup_gcm, GcmGhash};
 use subtle::ConstantTimeEq;
 use types::{Bytes, Key, Nonce, Result};
 
-pub struct Aes256GcmEncryption {
+pub struct Aes256Gcm {
     ctr: Aes256Ctr32,
     ghash: GcmGhash,
 }
 
-impl Aes256GcmEncryption {
+impl Aes256Gcm {
     pub fn new(
         key: &Key,
         nonce: &Nonce,
@@ -26,43 +26,44 @@ impl Aes256GcmEncryption {
         Ok(Self { ctr, ghash })
     }
 
-    pub fn encrypt(&mut self, buf: &mut Bytes) {
-        self.ctr.xor(buf);
-        self.ghash.update(buf);
-    }
-
-    pub fn compute_tag(self) -> [u8; TAG_SIZE] {
+    pub fn finalize(self) -> [u8; TAG_SIZE] {
         self.ghash.finalize()
     }
 }
 
-pub struct Aes256GcmDecryption {
-    ctr: Aes256Ctr32,
-    ghash: GcmGhash,
+pub trait Encrypt {
+    fn encrypt(&mut self, buf: &mut Bytes);
+    fn compute_tag(self) -> [u8; TAG_SIZE];
 }
 
-impl Aes256GcmDecryption {
-    pub fn new(
-        key: &[u8],
-        nonce: &[u8],
-        associated_data: &[u8],
-    ) -> Result<Self> {
-        let (ctr, ghash) = setup_gcm(key, nonce, associated_data)?;
-        Ok(Self { ctr, ghash })
+pub trait Decrypt {
+    fn decrypt(&mut self, buf: &mut Bytes);
+    fn verify_tag(self, tag: &Bytes) -> Result<()>;
+}
+
+impl Encrypt for Aes256Gcm {
+    fn encrypt(&mut self, buf: &mut Bytes) {
+        self.ctr.xor(buf);
+        self.ghash.update(buf);
     }
 
-    pub fn decrypt(&mut self, buf: &mut [u8]) {
+    fn compute_tag(self) -> [u8; TAG_SIZE] {
+        self.finalize()
+    }
+}
+
+impl Decrypt for Aes256Gcm {
+    fn decrypt(&mut self, buf: &mut Bytes) {
         self.ghash.update(buf);
         self.ctr.xor(buf);
     }
 
-    pub fn verify_tag(self, tag: &[u8]) -> Result<()> {
+    fn verify_tag(self, tag: &Bytes) -> Result<()> {
         if tag.len() != TAG_SIZE {
             return Err(Error::InvalidTag);
         }
 
-        let computed_tag: [u8; 16] = self.ghash.finalize();
-
+        let computed_tag = self.finalize();
         let tag_ok: subtle::Choice = tag.ct_eq(&computed_tag);
 
         if !bool::from(tag_ok) {
@@ -84,18 +85,20 @@ mod tests {
         let associated_data = b"associated_data";
         let plaintext = b"plaintext";
 
-        let mut encryption =
-            Aes256GcmEncryption::new(&key, &nonce, associated_data)
-                .unwrap();
+        let mut gcm =
+            Aes256Gcm::new(&key, &nonce, associated_data).unwrap();
+
         let mut ciphertext = plaintext.to_vec();
-        encryption.encrypt(&mut ciphertext);
-        let mut decryption =
-            Aes256GcmDecryption::new(&key, &nonce, associated_data)
-                .unwrap();
-        decryption.decrypt(&mut ciphertext);
+        gcm.encrypt(&mut ciphertext);
+
+        let tag = gcm.compute_tag();
+
+        let mut gcm_decrypt =
+            Aes256Gcm::new(&key, &nonce, associated_data).unwrap();
+        gcm_decrypt.decrypt(&mut ciphertext);
+
         assert_eq!(&ciphertext, plaintext);
-        let tag = encryption.compute_tag();
-        assert!(decryption.verify_tag(&tag).is_ok());
+        assert!(gcm_decrypt.verify_tag(&tag).is_ok());
     }
 
     #[test]
