@@ -2,19 +2,23 @@ use std::fmt::{self, Display, Formatter};
 
 #[derive(Debug, PartialEq)]
 pub enum Error {
+    InvalidNonceSize { expected_size: usize },
     InvalidKeySize,
-    InvalidNonceSize,
     InvalidTag,
 }
 
 impl Display for Error {
     fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
         match self {
-            Error::InvalidNonceSize => {
-                write!(fmt, "invalid nonce size")
+            Error::InvalidNonceSize { expected_size } => {
+                write!(
+                    fmt,
+                    "invalid key size, expected {}",
+                    expected_size
+                )
             }
             Error::InvalidKeySize => {
-                write!(fmt, "invalid key size") // TODO: provide more info
+                write!(fmt, "invalid key size",)
             }
             Error::InvalidTag => {
                 write!(fmt, "invalid authentication tag")

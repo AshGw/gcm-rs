@@ -1,6 +1,7 @@
 pub mod ctr;
 pub mod error;
 pub mod types;
+
 #[allow(unused_imports)]
 use ctr::Aes256Ctr32;
 

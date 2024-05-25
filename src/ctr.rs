@@ -19,7 +19,9 @@ impl Aes256Ctr32 {
         initializer: CTRInitializer,
     ) -> Result<Self> {
         if !is_valid_nonce_size(nonce, _NONCE_SIZE) {
-            return Err(Error::InvalidNonceSize);
+            return Err(Error::InvalidNonceSize {
+                expected_size: _NONCE_SIZE,
+            });
         }
         let mut _nonce_block = [0u8; _BLOCK_SIZE];
         _nonce_block[0.._NONCE_SIZE].copy_from_slice(nonce);
