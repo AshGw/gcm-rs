@@ -9,7 +9,7 @@ use ctr::Aes256Ctr32;
 use error::Error;
 use gcm::{setup as setup_gcm, GcmGhash};
 use subtle::ConstantTimeEq;
-use types::{Bytes, Key, Nonce, Result};
+use types::{BlockBytes, Bytes, Key, Nonce, Result};
 
 pub struct Aes256Gcm {
     ctr: Aes256Ctr32,
@@ -26,14 +26,14 @@ impl Aes256Gcm {
         Ok(Self { ctr, ghash })
     }
 
-    pub fn finalize(self) -> [u8; TAG_SIZE] {
+    pub fn finalize(self) -> BlockBytes {
         self.ghash.finalize()
     }
 }
 
 pub trait Encrypt {
     fn encrypt(&mut self, buf: &mut Bytes);
-    fn compute_tag(self) -> [u8; TAG_SIZE];
+    fn compute_tag(self) -> BlockBytes;
 }
 
 pub trait Decrypt {
@@ -47,7 +47,7 @@ impl Encrypt for Aes256Gcm {
         self.ghash.update(buf);
     }
 
-    fn compute_tag(self) -> [u8; TAG_SIZE] {
+    fn compute_tag(self) -> BlockBytes {
         self.finalize()
     }
 }
@@ -103,7 +103,6 @@ mod tests {
 
     #[test]
     fn test_aes256_ctr32_encryption_decryption() {
-        // Test data
         let key = [0u8; 32];
         let nonce = [0u8; 12];
         let init_ctr = 0;
