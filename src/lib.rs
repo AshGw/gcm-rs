@@ -11,7 +11,6 @@ mod tests {
 
     #[test]
     fn test_aes256_ctr32_encryption_decryption() {
-        // Test data
         let key = [0u8; 32];
         let nonce = [0u8; 12];
         let init_ctr = 0;

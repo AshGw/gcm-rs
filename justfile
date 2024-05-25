@@ -19,6 +19,7 @@ alias cov:= coverage
     rm -rf target  dist  cobertura.xml
 
 @set-hooks:
+    bash ./scripts/conventional-commits
     bash ./scripts/pre-commit
     bash ./scripts/pre-push
 

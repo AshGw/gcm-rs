@@ -2,3 +2,4 @@
 .idea/
 cobertura.xml
 tarpaulin-report.html
+commitlint.config.js
