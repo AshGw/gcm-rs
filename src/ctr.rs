@@ -33,6 +33,19 @@ impl Aes256Ctr32 {
         ctr.seek(Self::_BLOCK_SIZE * (initializer as usize));
         Ok(Self(ctr))
     }
+
+    pub fn from_key(
+        key: &Key,
+        nonce: &Nonce,
+        initializer: CTRInitializer,
+    ) -> Result<Self> {
+        Self::new(
+            Aes256::new_from_slice(key)
+                .map_err(|_| Error::InvalidKeySize)?,
+            nonce,
+            initializer,
+        )
+    }
 }
 
 fn is_valid_nonce_size(nonce: &Nonce, expected_size: usize) -> bool {
