@@ -1,6 +1,5 @@
 use std::fmt::{self, Display, Formatter};
 
-
 #[derive(Debug, PartialEq)]
 pub enum Error {
     InvalidKeySize,
@@ -14,8 +13,8 @@ impl Display for Error {
             Error::InvalidNonceSize => {
                 write!(fmt, "invalid nonce size")
             }
-            Error::InvalidInputSize => {
-                write!(fmt, "invalid input size")
+            Error::InvalidKeySize => {
+                write!(fmt, "invalid key size") // TODO: provide more info
             }
             Error::InvalidTag => {
                 write!(fmt, "invalid authentication tag")
