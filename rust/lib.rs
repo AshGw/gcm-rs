@@ -5,16 +5,24 @@ pub mod gcm;
 pub mod random;
 pub mod types;
 
+use random::{gen_key as gk, gen_nonce as gn};
+
 use pyo3::prelude::*;
 
 #[pyfunction]
-fn sum_as_string(a: usize, b: usize) -> PyResult<String> {
-    Ok((a + b).to_string())
+fn gen_nonce() -> PyResult<Vec<u8>> {
+    Ok(gn())
+}
+
+#[pyfunction]
+fn gen_key() -> PyResult<Vec<u8>> {
+    Ok(gk())
 }
 
 #[pymodule]
 #[pyo3(name = "_lib_name")]
 fn pyrust(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
+    m.add_function(wrap_pyfunction!(gen_nonce, m)?)?;
+    m.add_function(wrap_pyfunction!(gen_key, m)?)?;
     Ok(())
 }
