@@ -1,3 +1,4 @@
+use crate::constants::TAG_SIZE;
 use crate::constants::{C_SIZE, NONCE_SIZE, ZEROED_BLOCK};
 use crate::ctr::Aes256Ctr32;
 use crate::error::Error;
@@ -7,6 +8,7 @@ use aes::cipher::{BlockEncrypt, KeyInit};
 use aes::Aes256;
 use ghash::universal_hash::UniversalHash;
 use ghash::GHash;
+use subtle::ConstantTimeEq;
 
 #[derive(Clone)]
 pub struct GcmGhash {
@@ -137,4 +139,95 @@ pub fn setup(
 
     let ghash = GcmGhash::new(&h, ghash_padding, associated_data)?;
     Ok((ctr, ghash))
+}
+
+pub struct Aes256Gcm {
+    ctr: Aes256Ctr32,
+    ghash: GcmGhash,
+}
+
+impl Aes256Gcm {
+    pub fn new(
+        key: &Key,
+        nonce: &Nonce,
+        associated_data: &Bytes,
+    ) -> Result<Self> {
+        let (ctr, ghash) = setup(key, nonce, associated_data)?;
+        Ok(Self { ctr, ghash })
+    }
+
+    pub fn finalize(self) -> BlockBytes {
+        self.ghash.finalize()
+    }
+}
+
+pub trait Encrypt {
+    fn encrypt(&mut self, buf: &mut Bytes);
+    fn compute_tag(self) -> BlockBytes;
+}
+
+pub trait Decrypt {
+    fn decrypt(&mut self, buf: &mut Bytes);
+    fn verify_tag(self, tag: &Bytes) -> Result<()>;
+}
+
+impl Encrypt for Aes256Gcm {
+    fn encrypt(&mut self, buf: &mut Bytes) {
+        self.ctr.xor(buf);
+        self.ghash.update(buf);
+    }
+
+    fn compute_tag(self) -> BlockBytes {
+        self.finalize()
+    }
+}
+
+impl Decrypt for Aes256Gcm {
+    fn decrypt(&mut self, buf: &mut Bytes) {
+        self.ghash.update(buf);
+        self.ctr.xor(buf);
+    }
+
+    fn verify_tag(self, tag: &Bytes) -> Result<()> {
+        if tag.len() != TAG_SIZE {
+            return Err(Error::InvalidTag);
+        }
+
+        let computed_tag = self.finalize();
+        let tag_ok: subtle::Choice = tag.ct_eq(&computed_tag);
+
+        if !bool::from(tag_ok) {
+            return Err(Error::InvalidTag);
+        }
+
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_aes256_gcm_encryption_decryption() {
+        let key = [0u8; 32];
+        let nonce = [0u8; 12];
+        let associated_data = b"associated_data";
+        let plaintext = b"plaintext";
+
+        let mut gcm =
+            Aes256Gcm::new(&key, &nonce, associated_data).unwrap();
+
+        let mut ciphertext = plaintext.to_vec();
+        gcm.encrypt(&mut ciphertext);
+
+        let tag = gcm.compute_tag();
+
+        let mut gcm_decrypt =
+            Aes256Gcm::new(&key, &nonce, associated_data).unwrap();
+        gcm_decrypt.decrypt(&mut ciphertext);
+
+        assert_eq!(&ciphertext, plaintext);
+        assert!(gcm_decrypt.verify_tag(&tag).is_ok());
+    }
 }

@@ -14,5 +14,5 @@ dynamic = ["version"]
 
 [tool.maturin]
 python-source = "python"
-module-name = "ready_gcm._lib_name"
+module-name = "gcm_rs._lib_name"
 features = ["pyo3/extension-module"]
