@@ -21,6 +21,7 @@ fn gen_key() -> PyResult<Vec<u8>> {
 }
 
 #[pyclass]
+#[allow(dead_code)]
 struct Gcm(Aes256Gcm);
 
 #[pymodule]
