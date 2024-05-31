@@ -12,6 +12,8 @@ alias cov:= coverage
     # cargo install cargo-tarpaulin
     rustup component add clippy-preview
     pip install pre-commit
+    pip install maturin
+    maturin build 
     just h
     cargo build
 
