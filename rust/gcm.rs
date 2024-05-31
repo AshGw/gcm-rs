@@ -207,11 +207,12 @@ impl Decrypt for Aes256Gcm {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::random::{gen_key, gen_nonce};
 
     #[test]
     fn test_aes256_gcm_encryption_decryption() {
-        let key = [0u8; 32];
-        let nonce = [0u8; 12];
+        let key = gen_key();
+        let nonce = gen_nonce();
         let associated_data = b"associated_data";
         let plaintext = b"plaintext";
 
