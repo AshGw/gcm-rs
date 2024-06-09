@@ -16,5 +16,4 @@ dynamic = ["version"]
 python-source = "."
 module-name = "py._lib_name"
 features = ["pyo3/extension-module"]
-api-key = "PYPI_API_KEY"
 

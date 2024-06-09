@@ -2,7 +2,7 @@
 [package]
 name = "gcm_rs"
 version = "1.0.0"
-authors = ["ashgw ashrefgw@proton.me"]
+authors = ["ashrefgw@proton.me"]
 edition = "2021"
 description = "AES-256 GCM"
 repository = "https://github.com/ashgw/gcm_rs"
