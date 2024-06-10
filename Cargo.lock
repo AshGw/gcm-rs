@@ -79,7 +79,7 @@ dependencies = [
 
 [[package]]
 name = "gcm_rs"
-version = "1.0.3-beta"
+version = "1.0.6-beta"
 dependencies = [
  "aes",
  "anyhow",
