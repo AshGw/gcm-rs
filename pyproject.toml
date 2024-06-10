@@ -22,4 +22,3 @@ dynamic = ["version"]
 python-source = "packages/python/gcm_rs"
 module-name = "._lib_name"
 features = ["pyo3/extension-module"]
-
