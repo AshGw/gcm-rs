@@ -1,7 +1,7 @@
 
 [package]
 name = "gcm_rs"
-version = "1.0.0"
+version = "1.0.0-beta"
 authors = ["ashrefgw@proton.me"]
 edition = "2021"
 description = "AES-256 GCM"
@@ -10,7 +10,7 @@ license = "GPL-3.0"
 
 [lib]
 name = "gcm_rs"
-path = "rust/lib.rs"
+path = "packages/rust/lib.rs"
 crate-type = ["cdylib"]
 
 [profile.dev]
