@@ -7,13 +7,19 @@ name = "gcm_rs"
 requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Rust",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dynamic = ["version"]
 
 [tool.maturin]
-python-source = "."
-module-name = "packages/pylib._lib_name"
+python-source = "packages/python/gcm_rs"
+module-name = "._lib_name"
 features = ["pyo3/extension-module"]
 
