@@ -1,7 +1,7 @@
 
 [package]
 name = "gcm_rs"
-version = "1.0.3-beta"
+version = "1.0.5-beta"
 authors = ["ashrefgw@proton.me"]
 edition = "2021"
 description = "AES-256 GCM"
